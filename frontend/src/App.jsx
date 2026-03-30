@@ -103,28 +103,79 @@ function App() {
     }
   };
 
-  const handleDragEnd = async (event) => {
-    const { active, over } = event;
+  // const handleDragEnd = async (event) => {
+  //   const { active, over } = event;
 
-    if (active.id !== over?.id) {
-      const oldIndex = todos.findIndex(t => t.id === active.id);
-      const newIndex = todos.findIndex(t => t.id === over.id);
+  //   if (active.id !== over?.id) {
+  //     const oldIndex = todos.findIndex(t => t.id === active.id);
+  //     const newIndex = todos.findIndex(t => t.id === over.id);
 
-      const newTodos = arrayMove(todos, oldIndex, newIndex);
-      const updatedTodos = newTodos.map((todo, index) => ({ ...todo, position: index }));
+  //     const newTodos = arrayMove(todos, oldIndex, newIndex);
+  //     const updatedTodos = newTodos.map((todo, index) => ({ ...todo, position: index }));
       
-      setTodos(updatedTodos);
+  //     setTodos(updatedTodos);
 
-      try {
-        await reorderTodos(updatedTodos.map(t => ({ id: t.id, position: t.position })));
-         toast.success('Reorder successful');
-      } catch (error) {
-        console.error('Failed to reorder todos:', error);
-        toast.error('Failed to reorder todos');
-        fetchTodos();
-      }
-    }
-  };
+  //     try {
+  //       await reorderTodos(updatedTodos.map(t => ({ id: t.id, position: t.position })));
+  //        toast.success('Reorder successful');
+  //     } catch (error) {
+  //       console.error('Failed to reorder todos:', error);
+  //       toast.error('Failed to reorder todos');
+  //       fetchTodos();
+  //     }
+  //   }
+  // };
+
+  const handleDragEnd = async (event) => {
+  const { active, over } = event;
+
+  if (!over || active.id === over.id) return;
+
+  const oldIndex = todos.findIndex(t => t.id === active.id);
+  const newIndex = todos.findIndex(t => t.id === over.id);
+
+  if (oldIndex === -1 || newIndex === -1) return;
+
+  const newTodos = arrayMove(todos, oldIndex, newIndex);
+  
+  const updatedTodos = newTodos.map((todo, index) => ({
+    ...todo,
+    position: index
+  }));
+
+
+  // 🔥 ONLY PICK CHANGED ITEMS
+  // const changedTodos = updatedTodos.filter((todo, index) => {
+  //   return todo.position !== todos[index]?.position;
+  // });
+
+  // console.log('changed', changedTodos);
+
+  const originalMap = new Map(todos.map(t => [t.id, t.position]));
+
+const changedTodos = updatedTodos.filter(todo => {
+  return originalMap.get(todo.id) !== todo.position;
+});
+
+console.log('changed', changedTodos);
+
+  setTodos(updatedTodos);
+
+  try {
+    await reorderTodos(
+      changedTodos.map(t => ({
+        id: t.id,
+        position: t.position
+      }))
+    );
+
+    toast.success('Reorder successful');
+  } catch (error) {
+    console.error('Failed to reorder todos:', error);
+    toast.error('Failed to reorder todos');
+    fetchTodos();
+  }
+};
 
   const filteredTodos = todos.filter(todo => {
     if (filter === 'active') return !todo.is_completed;
