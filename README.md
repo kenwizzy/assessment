@@ -7,9 +7,10 @@ This is a Todo application with drag-and-drop, built with Laravel 13 and React 1
 2. rename .env.example to .env
 3. cd to the frontend directory
 4. rename .env.example to .env
-5. start up the services by running "docker-compose up -d" to spring up the containers
-6. After containers are up and running, run docker-compose exec backend php artisan migrate to migrate database
-7. Once migration is successful, you can access the url http://localhost:5173/ to access the application.
+5. run docker-compose exec backend php artisan key:generate to generate APP_KEY
+6. start up the services by running "docker-compose up -d" to spring up the containers
+7. After containers are up and running, run docker-compose exec backend php artisan migrate to migrate database
+8. Once migration is successful, you can access the url http://localhost:5173/ to access the application.
 
 ## DATABASE CONFIGURATION
 
